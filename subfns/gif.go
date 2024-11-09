@@ -33,10 +33,10 @@ func downloadAndStoreGif(env *intertypes.Env) *os.File {
 	}
 
 	resp, err := http.Get(env.GIF_URL)
-	defer resp.Body.Close()
 	if err != nil {
 		log.Fatalf("Couldn't fetch GIF. Error:\n%v", err.Error())
 	}
+	defer resp.Body.Close()
 	cachedFile, err = os.Create(cachedFilePath)
 	if err != nil {
 		log.Fatalf("Couldn't create GIF file. Error:\n%v", err.Error())
