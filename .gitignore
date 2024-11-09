@@ -1,4 +1,4 @@
 .env
 .vscode
-browser/node_modules
+node_modules
 /local-storage

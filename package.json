@@ -10,6 +10,10 @@
   "description": "",
   "type": "module",
   "dependencies": {
+    "dotenv": "^16.4.5",
     "puppeteer": "^23.7.1"
+  },
+  "devDependencies": {
+    "crossenv": "^0.0.2-security"
   }
 }
