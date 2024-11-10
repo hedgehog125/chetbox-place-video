@@ -42,7 +42,7 @@ export async function downloadGif() {
 		writeStream.on("error", (err) => reject(err));
 	});
 }
-export function generatePixelIds(gifData, elapsed) {
+export function generatePixelIds(gifData, elapsed, state) {
 	let pixelIds = new Array(gifData.width * gifData.height).fill(0);
 	let currentFrameID;
 	for (
@@ -64,6 +64,7 @@ export function generatePixelIds(gifData, elapsed) {
 		}
 	}
 	if (currentFrameID === gifData.frames.length) {
+		state.completed = true;
 		console.log("Reached end of GIF");
 	}
 	return pixelIds;

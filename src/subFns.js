@@ -60,12 +60,9 @@ export async function prepareGif(state) {
 	);
 	const pixelIds = generatePixelIds(
 		gifData,
-		(Date.now() - state.startTime) * Number(process.env.PLAYBACK_SPEED)
+		(Date.now() - state.startTime) * Number(process.env.PLAYBACK_SPEED),
+		state
 	);
-	if (pixelIds == null) {
-		state.completed = true;
-		throw new Error("Completed playback");
-	}
 
 	return {
 		pixelIds,
