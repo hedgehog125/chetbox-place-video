@@ -18,7 +18,12 @@ export async function loadState() {
 	return JSON.parse(await readFile(filePath));
 }
 export async function loadPage() {
-	const browser = await puppeteer.launch();
+	const browser = await (process.env.USE_NIXPACKS_PUPPETEER_ARGS === "true"
+		? puppeteer.launch({
+				args: ["--no-sandbox", "--disable-setuid-sandbox"],
+				ignoreDefaultArgs: ["-disable-extensions"],
+		  })
+		: puppeteer.launch());
 	try {
 		const page = await browser.newPage();
 		await page.goto(process.env.SITE_URL);

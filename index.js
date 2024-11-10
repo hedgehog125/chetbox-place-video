@@ -20,6 +20,7 @@ import { logWhenResolved } from "./src/lib.js";
 	"CANVAS_WIDTH",
 	"CANVAS_HEIGHT",
 	"PLAYBACK_SPEED",
+	"USE_NIXPACKS_PUPPETEER_ARGS",
 ].forEach((envVarName) => {
 	if (!process.env.hasOwnProperty(envVarName)) {
 		throw new Error(`Environment variable ${envVarName} has not been set.`);
