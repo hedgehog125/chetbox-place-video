@@ -44,15 +44,16 @@ export async function downloadGif() {
 }
 export function generatePixelIds(gifData, elapsed) {
 	let pixelIds = new Array(gifData.width * gifData.height).fill(0);
+	let currentFrameID;
 	for (
-		let currentFrameID = 0;
+		currentFrameID = 0;
 		currentFrameID < gifData.frames.length;
 		currentFrameID++
 	) {
 		const frame = gifData.frames[currentFrameID];
 		if (frame.timeCode > elapsed) {
 			console.log(`Rendering frame ${currentFrameID}`);
-			return pixelIds;
+			break;
 		}
 
 		for (let i = 0; i < frame.data.length; i += 4) {
@@ -62,7 +63,10 @@ export function generatePixelIds(gifData, elapsed) {
 			}
 		}
 	}
-	return null;
+	if (currentFrameID === gifData.frames.length) {
+		console.log("Reached end of GIF");
+	}
+	return pixelIds;
 }
 
 export async function fileExists(filePath) {
