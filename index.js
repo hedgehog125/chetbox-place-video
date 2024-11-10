@@ -28,6 +28,9 @@ import { logWhenResolved } from "./src/lib.js";
 });
 
 const state = await loadState();
+if (state.completed) {
+	throw new Error("Already completed playback");
+}
 if (state.errorOccurredAt != null) {
 	throw new Error("Exiting as an error previously occurred...");
 }

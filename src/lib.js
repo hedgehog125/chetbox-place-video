@@ -65,7 +65,7 @@ export function generatePixelIds(gifData, elapsed, state) {
 	}
 	if (currentFrameID === gifData.frames.length) {
 		state.completed = true;
-		console.log("Reached end of GIF");
+		console.log("Rendering last frame");
 	}
 	return pixelIds;
 }
