@@ -1,13 +1,21 @@
-import puppeteer from "puppeteer";
 import "dotenv/config";
+import { loadPage, prepareGif, renderFrame } from "./src/subFns.js";
+import { logWhenResolved } from "./src/lib.js";
 
-(async () => {
-	const browser = await puppeteer.launch();
-	const page = await browser.newPage();
-	await page.goto(process.env.SITE_URL, { timeout: 5000 });
+let browser, page, pixels, paletteButtons;
+const timeoutTask = setTimeout(async () => {
+	await browser?.close();
+	process.abort();
+}, 45 * 1000);
+console.log("Loading page and preparing GIF...");
 
-	await page.waitForSelector("td", { timeout: 5000 });
-	await page.click("td");
+let pixelIds, width;
+[{ browser, page, pixels, paletteButtons }, { pixelIds, width }] =
+	await Promise.all([
+		logWhenResolved(loadPage(), "Loaded page"),
+		logWhenResolved(prepareGif(), "Prepared GIF"),
+	]);
+await renderFrame(pixelIds, width, pixels, paletteButtons, page);
 
-	await browser.close();
-})();
+await browser.close();
+clearTimeout(timeoutTask);

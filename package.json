@@ -10,6 +10,7 @@
   "description": "",
   "type": "module",
   "dependencies": {
+    "decode-gif": "^1.0.1",
     "dotenv": "^16.4.5",
     "puppeteer": "^23.7.1"
   },
