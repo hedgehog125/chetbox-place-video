@@ -18,3 +18,4 @@ export const COLORS = [
 ];
 
 export const GIF_FILENAME = "gif.gif";
+export const STATE_FILENAME = "state.json";

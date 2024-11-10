@@ -1,10 +1,20 @@
 import puppeteer from "puppeteer";
 import path from "path";
-import { downloadGif, generatePixelIds, wait } from "./lib.js";
-import { COLORS, GIF_FILENAME } from "./constants.js";
-import { readFile } from "fs/promises";
+import { downloadGif, fileExists, generatePixelIds, wait } from "./lib.js";
+import { COLORS, GIF_FILENAME, STATE_FILENAME } from "./constants.js";
+import { readFile, writeFile } from "fs/promises";
 import decodeGif from "decode-gif";
 
+export async function loadState() {
+	const filePath = path.join(process.env.MOUNT_PATH, STATE_FILENAME);
+	if (!(await fileExists(filePath))) {
+		return {
+			errorOccurredAt: null,
+			startTime: Date.now(),
+		};
+	}
+	return JSON.parse(await readFile(filePath));
+}
 export async function loadPage() {
 	const browser = await puppeteer.launch();
 	try {
@@ -116,4 +126,24 @@ export async function renderFrame(
 
 	await wait(1000);
 	return totalUpdated;
+}
+
+export async function panic(browser, state, err) {
+	console.log("Panicking...");
+	state.errorOccurredAt = Date.now();
+	await saveState(state);
+	await browser?.close();
+
+	if (err) {
+		console.error(`Error causing panic:`, err);
+		throw err;
+	}
+	process.abort();
+}
+
+export async function saveState(state) {
+	await writeFile(
+		path.join(process.env.MOUNT_PATH, STATE_FILENAME),
+		JSON.stringify(state)
+	);
 }
