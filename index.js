@@ -15,7 +15,15 @@ let pixelIds, width;
 		logWhenResolved(loadPage(), "Loaded page"),
 		logWhenResolved(prepareGif(), "Prepared GIF"),
 	]);
-await renderFrame(pixelIds, width, pixels, paletteButtons, page);
+console.log("Rendering...");
+const changedPixels = await renderFrame(
+	pixelIds,
+	width,
+	pixels,
+	paletteButtons,
+	page
+);
+console.log(`Changed ${changedPixels} pixels`);
 
 await browser.close();
 clearTimeout(timeoutTask);

@@ -90,7 +90,8 @@ export async function renderFrame(
 					throw new Error("Couldn't find current colour of pixel");
 				}
 				const currentPixelColorId = parseInt(
-					colorClassName.split("color-")[1]
+					colorClassName.split("color-")[1],
+					16
 				);
 				if (isNaN(currentPixelColorId)) {
 					throw new Error("currentPixelColorId is NaN");
@@ -106,6 +107,7 @@ export async function renderFrame(
 
 				if (currentPixelColorId !== pixelIds[i]) {
 					outputPixels[drawPosIndex].click();
+					totalUpdated++;
 					await wait(25);
 				}
 			}
