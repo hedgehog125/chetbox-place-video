@@ -8,8 +8,10 @@ import decodeGif from "decode-gif";
 export async function loadState() {
 	const filePath = path.join(process.env.MOUNT_PATH, STATE_FILENAME);
 	if (!(await fileExists(filePath))) {
+		console.log("Created new state");
 		return {
 			errorOccurredAt: null,
+			completed: false,
 			startTime: Date.now(),
 		};
 	}
@@ -46,15 +48,22 @@ export async function loadPage() {
 		throw error;
 	}
 }
-export async function prepareGif() {
+export async function prepareGif(state) {
 	await downloadGif();
 	const gifData = decodeGif(
 		await readFile(path.join(process.env.MOUNT_PATH, GIF_FILENAME))
 	);
-	// TODO: take into account varying frame lengths
-	const frameId = 0;
+	const pixelIds = generatePixelIds(
+		gifData,
+		(Date.now() - state.startTime) * Number(process.env.PLAYBACK_SPEED)
+	);
+	if (pixelIds == null) {
+		state.completed = true;
+		throw new Error("Completed playback");
+	}
+
 	return {
-		pixelIds: generatePixelIds(gifData, frameId),
+		pixelIds,
 		width: gifData.width,
 		height: gifData.height,
 	};

@@ -42,10 +42,19 @@ export async function downloadGif() {
 		writeStream.on("error", (err) => reject(err));
 	});
 }
-export function generatePixelIds(gifData, frameId) {
+export function generatePixelIds(gifData, elapsed) {
 	let pixelIds = new Array(gifData.width * gifData.height).fill(0);
-	for (let currentFrameID = 0; currentFrameID <= frameId; currentFrameID++) {
+	for (
+		let currentFrameID = 0;
+		currentFrameID < gifData.frames.length;
+		currentFrameID++
+	) {
 		const frame = gifData.frames[currentFrameID];
+		if (frame.timeCode > elapsed) {
+			console.log(`Rendering frame ${currentFrameID}`);
+			return pixelIds;
+		}
+
 		for (let i = 0; i < frame.data.length; i += 4) {
 			if (frame.data[i + 3] === 255) {
 				// pixelIds[i / 4] = frame.data.slice(i, i + 3).join("|");
@@ -53,7 +62,7 @@ export function generatePixelIds(gifData, frameId) {
 			}
 		}
 	}
-	return pixelIds;
+	return null;
 }
 
 export async function fileExists(filePath) {

@@ -1,3 +1,5 @@
+// TODO: use gifuct-js?
+
 import "dotenv/config";
 import {
 	loadPage,
@@ -5,6 +7,7 @@ import {
 	panic,
 	prepareGif,
 	renderFrame,
+	saveState,
 } from "./src/subFns.js";
 import { logWhenResolved } from "./src/lib.js";
 
@@ -31,7 +34,7 @@ let pixelIds, width;
 [{ browser, page, pixels, paletteButtons }, { pixelIds, width }] =
 	await Promise.all([
 		logWhenResolved(loadPage(), "Loaded page"),
-		logWhenResolved(prepareGif(), "Prepared GIF"),
+		logWhenResolved(prepareGif(state), "Prepared GIF"),
 	]);
 console.log("Rendering...");
 const changedPixels = await renderFrame(
@@ -44,4 +47,5 @@ const changedPixels = await renderFrame(
 console.log(`Changed ${changedPixels} pixels`);
 
 await browser.close();
+await saveState(state);
 clearTimeout(timeoutTask);
