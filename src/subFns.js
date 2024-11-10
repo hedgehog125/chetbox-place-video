@@ -94,7 +94,7 @@ export async function renderFrame(
 		colorIdToDraw++
 	) {
 		await paletteButtons[colorIdToDraw].click();
-		await wait(50);
+		await wait(20);
 
 		for (let i = 0; i < pixelIds.length; i++) {
 			if (pixelIds[i] === colorIdToDraw) {
@@ -132,7 +132,7 @@ export async function renderFrame(
 				if (currentPixelColorId !== pixelIds[i]) {
 					outputPixels[drawPosIndex].click();
 					totalUpdated++;
-					await wait(25);
+					await wait(5);
 				}
 			}
 		}
@@ -146,8 +146,19 @@ export async function panic(browser, state, err) {
 	console.log("Panicking...");
 	state.errorOccurredAt = Date.now();
 	await saveState(state);
-	await browser?.close();
+	let shutdownError;
+	try {
+		await browser?.close();
+	} catch (_err) {
+		shutdownError = _err;
+	}
 
+	if (shutdownError) {
+		console.error(
+			"Error occurred while shutting down browser:",
+			shutdownError
+		);
+	}
 	if (err) {
 		console.error(`Error causing panic:`, err);
 		throw err;

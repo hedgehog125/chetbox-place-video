@@ -42,7 +42,7 @@ process.on("uncaughtException", onUncaughtException);
 
 const timeoutTask = setTimeout(async () => {
 	throw new Error("Timeout exceeded");
-}, 45 * 1000);
+}, 150 * 1000);
 
 console.log("Loading page and preparing GIF...");
 
