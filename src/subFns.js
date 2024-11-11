@@ -27,7 +27,10 @@ export async function loadPage() {
 		: puppeteer.launch());
 	try {
 		const page = await browser.newPage();
-		await page.goto(process.env.SITE_URL);
+		const resp = await page.goto(process.env.SITE_URL);
+		if (!resp.ok()) {
+			throw new Error(`Page status was ${resp.status()}`);
+		}
 
 		await page.waitForSelector("td");
 		while (true) {
