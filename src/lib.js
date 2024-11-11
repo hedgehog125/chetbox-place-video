@@ -42,7 +42,7 @@ export async function downloadGif() {
 		writeStream.on("error", (err) => reject(err));
 	});
 }
-export async function generatePixelIds(gifData, elapsed, state) {
+export async function generatePixelIds(gifData, state) {
 	let pixelIds = new Array(gifData.width * gifData.height).fill(0);
 	let currentFrameID;
 	for (
@@ -50,15 +50,30 @@ export async function generatePixelIds(gifData, elapsed, state) {
 		currentFrameID < gifData.frames.length;
 		currentFrameID++
 	) {
+		const elapsed =
+			(Date.now() - state.startTime) * Number(process.env.PLAYBACK_SPEED);
 		const frame = gifData.frames[currentFrameID];
 		if (frame.timeCode > elapsed) {
 			if (currentFrameID === state.lastFrame) {
-				console.log(
-					`Waiting ${frame.timeCode - elapsed}ms for frame to advance`
-				);
-				await wait(frame.timeCode - elapsed);
+				const timeToWait = frame.timeCode - elapsed;
+				if (timeToWait > parseInt(process.env.MAX_INITIAL_WAIT)) {
+					console.log(
+						`Time to next frame (${timeToWait}ms) is longer than MAX_INITIAL_WAIT, exiting and waiting for next rerun...`
+					);
+					return null;
+				}
+
+				console.log(`Waiting ${timeToWait}ms for frame to advance`);
+				await wait(timeToWait);
 			} else {
-				console.log(`Rendering frame ${currentFrameID}`);
+				const lastFrameTimestamp =
+					gifData.frames[currentFrameID - 1]?.timeCode ?? 0;
+
+				console.log(
+					`Rendering frame id ${currentFrameID - 1}, ${
+						elapsed - lastFrameTimestamp
+					}ms late`
+				);
 				break;
 			}
 		}
@@ -94,5 +109,5 @@ export async function logWhenResolved(promise, message) {
 }
 
 export function wait(delay) {
-	return new Promise((resolve) => setTimeout(() => resolve(), 100));
+	return new Promise((resolve) => setTimeout(() => resolve(), delay));
 }

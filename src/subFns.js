@@ -62,11 +62,8 @@ export async function prepareGif(state) {
 	const gifData = decodeGif(
 		await readFile(path.join(process.env.MOUNT_PATH, GIF_FILENAME))
 	);
-	const pixelIds = await generatePixelIds(
-		gifData,
-		(Date.now() - state.startTime) * Number(process.env.PLAYBACK_SPEED),
-		state
-	);
+	const pixelIds = await generatePixelIds(gifData, state);
+	if (pixelIds == null) return null;
 
 	return {
 		pixelIds,

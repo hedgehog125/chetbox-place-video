@@ -9,7 +9,6 @@ import {
 	renderFrame,
 	saveState,
 } from "./src/subFns.js";
-import { logWhenResolved } from "./src/lib.js";
 
 [
 	"SITE_URL",
@@ -21,6 +20,7 @@ import { logWhenResolved } from "./src/lib.js";
 	"CANVAS_HEIGHT",
 	"PLAYBACK_SPEED",
 	"USE_NIXPACKS_PUPPETEER_ARGS",
+	"MAX_INITIAL_WAIT",
 ].forEach((envVarName) => {
 	if (!process.env.hasOwnProperty(envVarName)) {
 		throw new Error(`Environment variable ${envVarName} has not been set.`);
@@ -43,18 +43,22 @@ function onUncaughtException(err) {
 }
 process.on("uncaughtException", onUncaughtException);
 
+console.log("Preparing GIF...");
+const preparedGif = await prepareGif(state);
+if (preparedGif == null) {
+	await saveState(state);
+	process.exit();
+}
+
+const { pixelIds, width } = preparedGif;
+
 const timeoutTask = setTimeout(async () => {
 	throw new Error("Timeout exceeded");
 }, 150 * 1000);
 
-console.log("Loading page and preparing GIF...");
+console.log("Loading page...");
+({ browser, page, pixels, paletteButtons } = await loadPage());
 
-let pixelIds, width;
-[{ browser, page, pixels, paletteButtons }, { pixelIds, width }] =
-	await Promise.all([
-		logWhenResolved(loadPage(), "Loaded page"),
-		logWhenResolved(prepareGif(state), "Prepared GIF"),
-	]);
 console.log("Rendering...");
 const changedPixels = await renderFrame(
 	pixelIds,
