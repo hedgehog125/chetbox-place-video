@@ -13,6 +13,7 @@ export async function loadState() {
 			errorOccurredAt: null,
 			completed: false,
 			startTime: Date.now(),
+			lastFrame: -1,
 		};
 	}
 	return JSON.parse(await readFile(filePath));
@@ -58,7 +59,7 @@ export async function prepareGif(state) {
 	const gifData = decodeGif(
 		await readFile(path.join(process.env.MOUNT_PATH, GIF_FILENAME))
 	);
-	const pixelIds = generatePixelIds(
+	const pixelIds = await generatePixelIds(
 		gifData,
 		(Date.now() - state.startTime) * Number(process.env.PLAYBACK_SPEED),
 		state

@@ -42,7 +42,7 @@ export async function downloadGif() {
 		writeStream.on("error", (err) => reject(err));
 	});
 }
-export function generatePixelIds(gifData, elapsed, state) {
+export async function generatePixelIds(gifData, elapsed, state) {
 	let pixelIds = new Array(gifData.width * gifData.height).fill(0);
 	let currentFrameID;
 	for (
@@ -52,8 +52,15 @@ export function generatePixelIds(gifData, elapsed, state) {
 	) {
 		const frame = gifData.frames[currentFrameID];
 		if (frame.timeCode > elapsed) {
-			console.log(`Rendering frame ${currentFrameID}`);
-			break;
+			if (currentFrameID === state.lastFrame) {
+				console.log(
+					`Waiting ${frame.timeCode - elapsed}ms for frame to advance`
+				);
+				await wait(frame.timeCode - elapsed);
+			} else {
+				console.log(`Rendering frame ${currentFrameID}`);
+				break;
+			}
 		}
 
 		for (let i = 0; i < frame.data.length; i += 4) {
@@ -67,6 +74,7 @@ export function generatePixelIds(gifData, elapsed, state) {
 		state.completed = true;
 		console.log("Rendering last frame");
 	}
+	state.lastFrame = currentFrameID;
 	return pixelIds;
 }
 
