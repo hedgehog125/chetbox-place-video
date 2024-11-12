@@ -73,7 +73,7 @@ export async function generatePixelIds(gifData, state) {
 
 				console.log(
 					`Rendering frame id ${currentFrameID - 1}, ${
-						(elapsed - lastFrameTimestamp) /
+						(scaledElapsed - lastFrameTimestamp) /
 						Number(process.env.PLAYBACK_SPEED)
 					}ms late`
 				);
