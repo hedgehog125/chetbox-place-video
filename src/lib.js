@@ -50,12 +50,14 @@ export async function generatePixelIds(gifData, state) {
 		currentFrameID < gifData.frames.length;
 		currentFrameID++
 	) {
-		const elapsed =
+		const scaledElapsed =
 			(Date.now() - state.startTime) * Number(process.env.PLAYBACK_SPEED);
 		const frame = gifData.frames[currentFrameID];
-		if (frame.timeCode > elapsed) {
+		if (frame.timeCode > scaledElapsed) {
 			if (currentFrameID === state.lastFrame) {
-				const timeToWait = frame.timeCode - elapsed;
+				const timeToWait =
+					(frame.timeCode - scaledElapsed) /
+					Number(process.env.PLAYBACK_SPEED);
 				if (timeToWait > parseInt(process.env.MAX_INITIAL_WAIT)) {
 					console.log(
 						`Time to next frame (${timeToWait}ms) is longer than MAX_INITIAL_WAIT, exiting and waiting for next rerun...`
@@ -71,7 +73,8 @@ export async function generatePixelIds(gifData, state) {
 
 				console.log(
 					`Rendering frame id ${currentFrameID - 1}, ${
-						elapsed - lastFrameTimestamp
+						(elapsed - lastFrameTimestamp) /
+						Number(process.env.PLAYBACK_SPEED)
 					}ms late`
 				);
 				break;
