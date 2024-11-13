@@ -21,6 +21,7 @@ import {
 	"PLAYBACK_SPEED",
 	"USE_NIXPACKS_PUPPETEER_ARGS",
 	"MAX_INITIAL_WAIT",
+	"IGNORE_ERRORS",
 ].forEach((envVarName) => {
 	if (!process.env.hasOwnProperty(envVarName)) {
 		throw new Error(`Environment variable ${envVarName} has not been set.`);
@@ -31,7 +32,7 @@ const state = await loadState();
 if (state.completed) {
 	throw new Error("Already completed playback");
 }
-if (state.errorOccurredAt != null) {
+if (state.errorOccurredAt != null && process.env.IGNORE_ERRORS !== "true") {
 	throw new Error("Exiting as an error previously occurred...");
 }
 
