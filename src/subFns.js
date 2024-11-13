@@ -11,12 +11,15 @@ export async function loadState() {
 		console.log("Created new state");
 		return {
 			errorOccurredAt: null,
+			errorCount: 0,
 			completed: false,
 			startTime: Date.now(),
 			lastFrame: -1,
 		};
 	}
-	return JSON.parse(await readFile(filePath));
+	const parsed = JSON.parse(await readFile(filePath));
+	if (parsed.errorCount == null) parsed.errorCount = 0;
+	return parsed;
 }
 export async function loadPage() {
 	const browser = await (process.env.USE_NIXPACKS_PUPPETEER_ARGS === "true"

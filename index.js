@@ -21,7 +21,7 @@ import {
 	"PLAYBACK_SPEED",
 	"USE_NIXPACKS_PUPPETEER_ARGS",
 	"MAX_INITIAL_WAIT",
-	"IGNORE_ERRORS",
+	"MAX_ERRORS",
 	"MAX_RETRIES",
 ].forEach((envVarName) => {
 	if (!process.env.hasOwnProperty(envVarName)) {
@@ -33,8 +33,10 @@ const state = await loadState();
 if (state.completed) {
 	throw new Error("Already completed playback");
 }
-if (state.errorOccurredAt != null && process.env.IGNORE_ERRORS !== "true") {
-	throw new Error("Exiting as an error previously occurred...");
+if (state.errorCount > Number(process.env.MAX_ERRORS)) {
+	throw new Error(
+		`Exiting as MAX_ERRORS (${process.env.MAX_ERRORS}) has been reached. Last panic was at ${state.errorOccurredAt}`
+	);
 }
 
 let browser, page, pixels, paletteButtons;
