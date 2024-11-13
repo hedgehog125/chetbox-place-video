@@ -146,7 +146,9 @@ export async function renderFrame(
 export async function panic(browser, state, err) {
 	console.log("Panicking...");
 	state.errorOccurredAt = Date.now();
+	state.errorCount++;
 	await saveState(state);
+
 	let shutdownError;
 	try {
 		await browser?.close();
