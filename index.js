@@ -22,6 +22,7 @@ import {
 	"USE_NIXPACKS_PUPPETEER_ARGS",
 	"MAX_INITIAL_WAIT",
 	"IGNORE_ERRORS",
+	"MAX_RETRIES",
 ].forEach((envVarName) => {
 	if (!process.env.hasOwnProperty(envVarName)) {
 		throw new Error(`Environment variable ${envVarName} has not been set.`);
@@ -57,18 +58,39 @@ const timeoutTask = setTimeout(async () => {
 	throw new Error("Timeout exceeded");
 }, 150 * 1000);
 
-console.log("Loading page...");
-({ browser, page, pixels, paletteButtons } = await loadPage());
+let retries = 0;
+while (true) {
+	let failed = false;
+	try {
+		console.log("Loading page...");
+		({ browser, page, pixels, paletteButtons } = await loadPage());
 
-console.log("Rendering...");
-const changedPixels = await renderFrame(
-	pixelIds,
-	width,
-	pixels,
-	paletteButtons,
-	page
-);
-console.log(`Changed ${changedPixels} pixels`);
+		console.log("Rendering...");
+		const changedPixels = await renderFrame(
+			pixelIds,
+			width,
+			pixels,
+			paletteButtons,
+			page
+		);
+		console.log(`Changed ${changedPixels} pixels`);
+	} catch (error) {
+		try {
+			await browser.close();
+		} catch {}
+
+		console.log("An error occurred while loading and rendering the page:");
+		console.error(error);
+		failed = true;
+	}
+
+	if (!failed) break;
+	retries++;
+	if (retries > Number(process.env.MAX_RETRIES)) {
+		throw new Error("Max retries exceeded");
+	}
+	console.log(`Starting retry ${retries} of ${process.env.MAX_RETRIES}...`);
+}
 
 await browser.close();
 await saveState(state);
