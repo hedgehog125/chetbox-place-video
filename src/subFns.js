@@ -14,14 +14,16 @@ import decodeGif from "decode-gif";
 export async function loadState() {
 	const filePath = path.join(process.env.MOUNT_PATH, STATE_FILENAME);
 	if (!(await fileExists(filePath))) {
-		const newState = {
-			errorOccurredAt: null,
-			errorCount: 0,
-			completed: false,
-			startTime: Date.now(),
-			lastFrame: -1,
-			tag: randomString(10),
-		};
+		const newState = process.env.INITIAL_STATE
+			? JSON.parse(process.env.INITIAL_STATE)
+			: {
+					errorOccurredAt: null,
+					errorCount: 0,
+					completed: false,
+					startTime: Date.now(),
+					lastFrame: -1,
+					tag: randomString(10),
+			  };
 		console.log(`Created new state: ${JSON.stringify(newState)}`);
 		return newState;
 	}
