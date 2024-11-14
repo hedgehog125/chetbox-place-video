@@ -97,3 +97,5 @@ console.log("Shutting down...");
 await shutdownBrowserWithTimeout(browser);
 await saveState(state);
 clearTimeout(timeoutTask);
+
+process.exit(); // Should help stop it hanging even if I do something silly like forget to cancel a timeout?
