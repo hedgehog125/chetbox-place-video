@@ -37,6 +37,7 @@ const state = await Promise.race([
 		throw new Error("Read timeout exceeded");
 	},
 ]);
+console.log(`Loaded:`, state);
 if (state.completed) {
 	throw new Error("Already completed playback");
 }
