@@ -114,3 +114,15 @@ export async function logWhenResolved(promise, message) {
 export function wait(delay) {
 	return new Promise((resolve) => setTimeout(() => resolve(), delay));
 }
+
+export function randomString(
+	len,
+	characters = "abcdefghijklmnopqrstuvwxyz0123456789"
+) {
+	return Array.from(new Array(len), () =>
+		randomItemOfString(characters)
+	).join("");
+}
+export function randomItemOfString(str) {
+	return str[Math.floor(Math.random() * str.length)];
+}

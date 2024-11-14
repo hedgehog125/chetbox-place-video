@@ -1,6 +1,12 @@
 import puppeteer from "puppeteer";
 import path from "path";
-import { downloadGif, fileExists, generatePixelIds, wait } from "./lib.js";
+import {
+	downloadGif,
+	fileExists,
+	generatePixelIds,
+	randomString,
+	wait,
+} from "./lib.js";
 import { COLORS, GIF_FILENAME, STATE_FILENAME } from "./constants.js";
 import { readFile, writeFile } from "fs/promises";
 import decodeGif from "decode-gif";
@@ -8,15 +14,14 @@ import decodeGif from "decode-gif";
 export async function loadState() {
 	const filePath = path.join(process.env.MOUNT_PATH, STATE_FILENAME);
 	if (!(await fileExists(filePath))) {
-		const newState = process.env.INITIAL_STATE
-			? JSON.parse(process.env.INITIAL_STATE)
-			: {
-					errorOccurredAt: null,
-					errorCount: 0,
-					completed: false,
-					startTime: Date.now(),
-					lastFrame: -1,
-			  };
+		const newState = {
+			errorOccurredAt: null,
+			errorCount: 0,
+			completed: false,
+			startTime: Date.now(),
+			lastFrame: -1,
+			tag: randomString(10),
+		};
 		console.log(`Created new state: ${JSON.stringify(newState)}`);
 		return newState;
 	}
@@ -30,7 +35,23 @@ export async function loadState() {
 			`Could not parse state file. Contents:\n"${content}"\nError:\n${error}`
 		);
 	}
-	if (parsed.errorCount == null) parsed.errorCount = 0;
+
+	if (process.env.LOAD_STATE) {
+		const newParsedState = JSON.parse(process.env.LOAD_STATE);
+		if (newParsedState.tag !== parsed.tag) {
+			console.log(
+				`Loading LOAD_STATE. Old:\n${JSON.stringify(
+					parsed
+				)}\nNew:${JSON.stringify(newParsedState)}`
+			);
+			return newParsedState;
+		}
+		console.log(
+			`*Not* loading LOAD_STATE. Current:\n${JSON.stringify(
+				parsed
+			)}\nEnv var:${JSON.stringify(newParsedState)}`
+		);
+	}
 	return parsed;
 }
 export async function loadPage() {
