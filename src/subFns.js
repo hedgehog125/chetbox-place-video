@@ -221,10 +221,10 @@ export async function shutdownBrowserWithTimeout(browser) {
 
 	await Promise.race([
 		browser.close(),
-		async () => {
+		(async () => {
 			await wait(30 * 1000);
 			throw new Error("Browser shutdown timeout exceeded");
-		},
+		})(),
 	]);
 }
 
@@ -233,9 +233,9 @@ export async function saveState(state) {
 	console.log(`Saving state... Value: ${content}`);
 	await Promise.race([
 		writeFile(path.join(process.env.MOUNT_PATH, STATE_FILENAME), content),
-		async () => {
+		(async () => {
 			await wait(10 * 1000);
 			throw new Error("Write timeout exceeded");
-		},
+		})(),
 	]);
 }
