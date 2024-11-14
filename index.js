@@ -10,6 +10,7 @@ import {
 	saveState,
 	shutdownBrowserWithTimeout,
 } from "./src/subFns.js";
+import { wait } from "./src/lib.js";
 
 [
 	"SITE_URL",
