@@ -8,14 +8,17 @@ import decodeGif from "decode-gif";
 export async function loadState() {
 	const filePath = path.join(process.env.MOUNT_PATH, STATE_FILENAME);
 	if (!(await fileExists(filePath))) {
-		console.log("Created new state");
-		return {
-			errorOccurredAt: null,
-			errorCount: 0,
-			completed: false,
-			startTime: Date.now(),
-			lastFrame: -1,
-		};
+		const newState = process.env.INITIAL_STATE
+			? JSON.parse(process.env.INITIAL_STATE)
+			: {
+					errorOccurredAt: null,
+					errorCount: 0,
+					completed: false,
+					startTime: Date.now(),
+					lastFrame: -1,
+			  };
+		console.log(`Created new state: ${JSON.stringify(newState)}`);
+		return newState;
 	}
 
 	const content = await readFile(filePath);
@@ -24,7 +27,7 @@ export async function loadState() {
 		parsed = JSON.parse(content);
 	} catch (error) {
 		throw new Error(
-			`Could not parse state file. Contents:\n${content}\nError:\n${error}`
+			`Could not parse state file. Contents:\n"${content}"\nError:\n${error}`
 		);
 	}
 	if (parsed.errorCount == null) parsed.errorCount = 0;
