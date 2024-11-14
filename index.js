@@ -1,37 +1,38 @@
-// TODO: use gifuct-js?
+console.log("Test");
+// // TODO: use gifuct-js?
 
-import "dotenv/config";
-import {
-	loadPage,
-	loadState,
-	panic,
-	prepareGif,
-	renderFrame,
-	saveState,
-	shutdownBrowserWithTimeout,
-} from "./src/subFns.js";
-import { timeoutRace } from "./src/lib.js";
+// import "dotenv/config";
+// import {
+// 	loadPage,
+// 	loadState,
+// 	panic,
+// 	prepareGif,
+// 	renderFrame,
+// 	saveState,
+// 	shutdownBrowserWithTimeout,
+// } from "./src/subFns.js";
+// import { timeoutRace } from "./src/lib.js";
 
-[
-	"SITE_URL",
-	"MOUNT_PATH",
-	"GIF_URL",
-	"RENDER_X",
-	"RENDER_Y",
-	"CANVAS_WIDTH",
-	"CANVAS_HEIGHT",
-	"PLAYBACK_SPEED",
-	"USE_NIXPACKS_PUPPETEER_ARGS",
-	"MAX_INITIAL_WAIT",
-	"MAX_ERRORS",
-	"MAX_RETRIES",
-].forEach((envVarName) => {
-	if (!process.env.hasOwnProperty(envVarName)) {
-		throw new Error(`Environment variable ${envVarName} has not been set.`);
-	}
-});
+// [
+// 	"SITE_URL",
+// 	"MOUNT_PATH",
+// 	"GIF_URL",
+// 	"RENDER_X",
+// 	"RENDER_Y",
+// 	"CANVAS_WIDTH",
+// 	"CANVAS_HEIGHT",
+// 	"PLAYBACK_SPEED",
+// 	"USE_NIXPACKS_PUPPETEER_ARGS",
+// 	"MAX_INITIAL_WAIT",
+// 	"MAX_ERRORS",
+// 	"MAX_RETRIES",
+// ].forEach((envVarName) => {
+// 	if (!process.env.hasOwnProperty(envVarName)) {
+// 		throw new Error(`Environment variable ${envVarName} has not been set.`);
+// 	}
+// });
 
-const state = await timeoutRace(loadState(), 10 * 1000);
+// const state = await timeoutRace(loadState(), 10 * 1000);
 // if (state.completed) {
 // 	throw new Error("Already completed playback");
 // }
@@ -100,4 +101,4 @@ const state = await timeoutRace(loadState(), 10 * 1000);
 // console.log("Done");
 // clearTimeout(timeoutTask);
 
-// TODO: this isn't exiting properly!!!! Must not be clearing all the timeouts
+// // TODO: this isn't exiting properly!!!! Must not be clearing all the timeouts
