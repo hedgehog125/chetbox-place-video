@@ -30,7 +30,13 @@ import {
 	}
 });
 
-const state = await loadState();
+const state = await Promise.race([
+	loadState(),
+	async () => {
+		await wait(10 * 1000);
+		throw new Error("Read timeout exceeded");
+	},
+]);
 if (state.completed) {
 	throw new Error("Already completed playback");
 }

@@ -230,7 +230,12 @@ export async function shutdownBrowserWithTimeout(browser) {
 
 export async function saveState(state) {
 	const content = JSON.stringify(state);
-	console.log(`Saving state...\nValue: ${content}`);
-	console.log(typeof state);
-	await writeFile(path.join(process.env.MOUNT_PATH, STATE_FILENAME), content);
+	console.log(`Saving state... Value: ${content}`);
+	await Promise.race([
+		writeFile(path.join(process.env.MOUNT_PATH, STATE_FILENAME), content),
+		async () => {
+			await wait(10 * 1000);
+			throw new Error("Write timeout exceeded");
+		},
+	]);
 }
