@@ -10,7 +10,7 @@ import {
 	saveState,
 	shutdownBrowserWithTimeout,
 } from "./src/subFns.js";
-import { wait } from "./src/lib.js";
+import { timeoutRace } from "./src/lib.js";
 
 [
 	"SITE_URL",
@@ -31,13 +31,7 @@ import { wait } from "./src/lib.js";
 	}
 });
 
-const state = await Promise.race([
-	loadState(),
-	(async () => {
-		await wait(10 * 1000);
-		throw new Error("Read timeout exceeded");
-	})(),
-]);
+const state = await timeoutRace(loadState(), 10 * 1000);
 if (state.completed) {
 	throw new Error("Already completed playback");
 }
@@ -105,5 +99,3 @@ await shutdownBrowserWithTimeout(browser);
 await saveState(state);
 console.log("Done");
 clearTimeout(timeoutTask);
-
-process.exit(); // Should help stop it hanging even if I do something silly like forget to cancel a timeout?

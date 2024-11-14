@@ -114,6 +114,19 @@ export async function logWhenResolved(promise, message) {
 export function wait(delay) {
 	return new Promise((resolve) => setTimeout(() => resolve(), delay));
 }
+export async function timeoutRace(promise, maxTime) {
+	let timeoutTask;
+	const output = await Promise.race([
+		promise,
+		new Promise((_, reject) => {
+			timeoutTask = setTimeout(() => {
+				reject("Timeout exceeded");
+			}, maxTime);
+		}),
+	]);
+	clearTimeout(timeoutTask);
+	return output;
+}
 
 export function randomString(
 	len,

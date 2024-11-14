@@ -6,6 +6,7 @@ import {
 	generatePixelIds,
 	randomString,
 	wait,
+	timeoutRace,
 } from "./lib.js";
 import { COLORS, GIF_FILENAME, STATE_FILENAME } from "./constants.js";
 import { readFile, writeFile } from "fs/promises";
@@ -142,7 +143,7 @@ export async function renderFrame(
 		colorIdToDraw++
 	) {
 		await paletteButtons[colorIdToDraw].click();
-		await wait(20);
+		await wait(30);
 
 		for (let i = 0; i < pixelIds.length; i++) {
 			if (pixelIds[i] === colorIdToDraw) {
@@ -180,13 +181,13 @@ export async function renderFrame(
 				if (currentPixelColorId !== pixelIds[i]) {
 					outputPixels[drawPosIndex].click();
 					totalUpdated++;
-					await wait(5);
+					await wait(30);
 				}
 			}
 		}
 	}
 
-	await wait(1000);
+	await wait(2000);
 	return totalUpdated;
 }
 
@@ -219,23 +220,14 @@ export async function shutdownBrowserWithTimeout(browser) {
 	console.log("Closing browser...");
 	if (browser) return;
 
-	await Promise.race([
-		browser.close(),
-		(async () => {
-			await wait(30 * 1000);
-			throw new Error("Browser shutdown timeout exceeded");
-		})(),
-	]);
+	await timeoutRace(browser.close(), 30 * 1000);
 }
 
 export async function saveState(state) {
 	const content = JSON.stringify(state);
 	console.log(`Saving state... Value: ${content}`);
-	await Promise.race([
+	await timeoutRace(
 		writeFile(path.join(process.env.MOUNT_PATH, STATE_FILENAME), content),
-		(async () => {
-			await wait(10 * 1000);
-			throw new Error("Write timeout exceeded");
-		})(),
-	]);
+		10 * 1000
+	);
 }
