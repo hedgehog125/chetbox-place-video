@@ -29,6 +29,7 @@ export async function loadState() {
 	}
 
 	const content = await readFile(filePath);
+	console.log(`Read state from disk: ${content}`);
 	let parsed;
 	try {
 		parsed = JSON.parse(content);
@@ -44,14 +45,14 @@ export async function loadState() {
 			console.log(
 				`Loading LOAD_STATE. Old:\n${JSON.stringify(
 					parsed
-				)}\nNew:${JSON.stringify(newParsedState)}`
+				)}\nNew:\n${JSON.stringify(newParsedState)}`
 			);
 			return newParsedState;
 		}
 		console.log(
 			`*Not* loading LOAD_STATE. Current:\n${JSON.stringify(
 				parsed
-			)}\nEnv var:${JSON.stringify(newParsedState)}`
+			)}\nLOAD_STATE:\n${JSON.stringify(newParsedState)}`
 		);
 	}
 	return parsed;
@@ -69,6 +70,11 @@ export async function loadPage() {
 		if (!resp.ok()) {
 			throw new Error(`Page status was ${resp.status()}`);
 		}
+		const errorEventPromise = new Promise((_, reject) => {
+			browser.on("error", reject);
+			browser.on("disconnect", reject);
+			page.once("error", reject);
+		});
 
 		await page.waitForSelector("td");
 		while (true) {
@@ -80,18 +86,24 @@ export async function loadPage() {
 			) {
 				const paletteButtons = await page.$$("#palette > span");
 				if (paletteButtons.length !== COLORS.length) {
-					await browser.close();
+					await shutdownBrowserWithTimeout(browser);
 					throw new Error(
 						`Found ${paletteButtons.length} palette buttons instead of expected ${COLORS.length}`
 					);
 				}
 
-				return { page, browser, pixels, paletteButtons };
+				return {
+					page,
+					browser,
+					pixels,
+					paletteButtons,
+					errorEventPromise,
+				};
 			}
 			await wait(100);
 		}
 	} catch (error) {
-		await browser.close();
+		await shutdownBrowserWithTimeout(browser);
 		throw error;
 	}
 }
@@ -186,7 +198,7 @@ export async function panic(browser, state, err) {
 
 	let shutdownError;
 	try {
-		await browser?.close();
+		await shutdownBrowserWithTimeout(browser);
 	} catch (_err) {
 		shutdownError = _err;
 	}
@@ -202,6 +214,16 @@ export async function panic(browser, state, err) {
 		throw err;
 	}
 	process.abort();
+}
+export async function shutdownBrowserWithTimeout(browser) {
+	if (browser) return;
+	await Promise.race([
+		browser.close(),
+		async () => {
+			await wait(30 * 1000);
+			throw new Error("Browser shutdown timeout exceeded");
+		},
+	]);
 }
 
 export async function saveState(state) {

@@ -39,7 +39,7 @@ if (state.errorCount > Number(process.env.MAX_ERRORS)) {
 	);
 }
 
-let browser, page, pixels, paletteButtons;
+let browser, page, pixels, paletteButtons, errorEventPromise;
 
 function onUncaughtException(err) {
 	process.removeListener("uncaughtException", onUncaughtException);
@@ -65,20 +65,18 @@ while (true) {
 	let failed = false;
 	try {
 		console.log("Loading page...");
-		({ browser, page, pixels, paletteButtons } = await loadPage());
+		({ browser, page, pixels, paletteButtons, errorEventPromise } =
+			await loadPage());
 
 		console.log("Rendering...");
-		const changedPixels = await renderFrame(
-			pixelIds,
-			width,
-			pixels,
-			paletteButtons,
-			page
-		);
+		const changedPixels = await Promise.race([
+			renderFrame(pixelIds, width, pixels, paletteButtons, page),
+			errorEventPromise,
+		]);
 		console.log(`Changed ${changedPixels} pixels`);
 	} catch (error) {
 		try {
-			await browser.close();
+			await shutdownBrowserWithTimeout(browser);
 		} catch {}
 
 		console.log("An error occurred while loading and rendering the page:");
@@ -94,6 +92,6 @@ while (true) {
 	console.log(`Starting retry ${retries} of ${process.env.MAX_RETRIES}...`);
 }
 
-await browser.close();
+await shutdownBrowserWithTimeout(browser);
 await saveState(state);
 clearTimeout(timeoutTask);
