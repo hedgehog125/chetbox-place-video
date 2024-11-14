@@ -8,6 +8,7 @@ import {
 	prepareGif,
 	renderFrame,
 	saveState,
+	shutdownBrowserWithTimeout,
 } from "./src/subFns.js";
 
 [
@@ -92,6 +93,7 @@ while (true) {
 	console.log(`Starting retry ${retries} of ${process.env.MAX_RETRIES}...`);
 }
 
+console.log("Shutting down...");
 await shutdownBrowserWithTimeout(browser);
 await saveState(state);
 clearTimeout(timeoutTask);

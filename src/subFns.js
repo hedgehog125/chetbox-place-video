@@ -216,7 +216,9 @@ export async function panic(browser, state, err) {
 	process.abort();
 }
 export async function shutdownBrowserWithTimeout(browser) {
+	console.log("Closing browser...");
 	if (browser) return;
+
 	await Promise.race([
 		browser.close(),
 		async () => {
@@ -227,6 +229,8 @@ export async function shutdownBrowserWithTimeout(browser) {
 }
 
 export async function saveState(state) {
+	const content = JSON.stringify(state);
+	console.log(`Saving state...\n${content}`);
 	await writeFile(
 		path.join(process.env.MOUNT_PATH, STATE_FILENAME),
 		JSON.stringify(state)
