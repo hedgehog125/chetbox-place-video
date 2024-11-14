@@ -17,7 +17,16 @@ export async function loadState() {
 			lastFrame: -1,
 		};
 	}
-	const parsed = JSON.parse(await readFile(filePath));
+
+	const content = await readFile(filePath);
+	let parsed;
+	try {
+		parsed = JSON.parse(content);
+	} catch (error) {
+		throw new Error(
+			`Could not parse state file. Contents:\n${content}\nError:\n${error}`
+		);
+	}
 	if (parsed.errorCount == null) parsed.errorCount = 0;
 	return parsed;
 }
