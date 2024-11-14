@@ -230,9 +230,7 @@ export async function shutdownBrowserWithTimeout(browser) {
 
 export async function saveState(state) {
 	const content = JSON.stringify(state);
-	console.log(`Saving state...\n${content}`);
-	await writeFile(
-		path.join(process.env.MOUNT_PATH, STATE_FILENAME),
-		JSON.stringify(state)
-	);
+	console.log(`Saving state...\nValue: ${content}`);
+	console.log(typeof state);
+	await writeFile(path.join(process.env.MOUNT_PATH, STATE_FILENAME), content);
 }
