@@ -51,6 +51,7 @@ console.log("Preparing GIF...");
 const preparedGif = await prepareGif(state);
 if (preparedGif == null) {
 	await saveState(state);
+	console.log("Done");
 	process.exit();
 }
 
