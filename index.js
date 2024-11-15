@@ -95,6 +95,8 @@ while (true) {
 console.log("Shutting down...");
 await shutdownBrowserWithTimeout(browser);
 await saveState(state);
-console.log("Done");
 clearTimeout(timeoutTask);
-console.log(`browser.connected: ${browser?.connected}`);
+if (browser?.connected) {
+	throw new Error("The browser is still connected. This shouldn't happen!");
+}
+console.log("Done");
