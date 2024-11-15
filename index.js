@@ -43,11 +43,9 @@ if (state.errorCount > Number(process.env.MAX_ERRORS)) {
 
 let browser, page, pixels, paletteButtons, errorEventPromise;
 
-function onUncaughtException(err) {
-	process.removeListener("uncaughtException", onUncaughtException);
+process.once("uncaughtException", (err) => {
 	panic(browser, state, err);
-}
-process.on("uncaughtException", onUncaughtException);
+});
 
 console.log("Preparing GIF...");
 const preparedGif = await prepareGif(state);
@@ -99,5 +97,4 @@ await shutdownBrowserWithTimeout(browser);
 await saveState(state);
 console.log("Done");
 clearTimeout(timeoutTask);
-
-// TODO: this isn't exiting properly!!!! Must not be clearing all the timeouts
+console.log(`browser.connected: ${browser?.connected}`);

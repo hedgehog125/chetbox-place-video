@@ -218,7 +218,7 @@ export async function panic(browser, state, err) {
 }
 export async function shutdownBrowserWithTimeout(browser) {
 	console.log("Closing browser...");
-	if (browser) return;
+	if (!browser) return;
 
 	await timeoutRace(browser.close(), 30 * 1000);
 }

@@ -1,1 +1,1 @@
-ffmpeg -ss 00:03:00 -i history.gif -t 10 endOfPlaceHistory.gif
+ffmpeg -ss 00:03:00 -i history.gif endOfPlaceHistory.gif
