@@ -35,14 +35,19 @@ export async function loadState() {
 	try {
 		parsed = JSON.parse(content);
 	} catch (error) {
-		throw new Error(
+		const errorMessage = new Error(
 			`Could not parse state file. Contents:\n"${content}"\nError:\n${error}`
 		);
+		if (process.env.LOAD_STATE) {
+			console.error(errorMessage);
+		} else {
+			throw errorMessage;
+		}
 	}
 
 	if (process.env.LOAD_STATE) {
 		const newParsedState = JSON.parse(process.env.LOAD_STATE);
-		if (newParsedState.tag !== parsed.tag) {
+		if (!parsed || newParsedState.tag !== parsed.tag) {
 			console.log(
 				`Loading LOAD_STATE. Old:\n${JSON.stringify(
 					parsed
