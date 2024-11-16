@@ -93,7 +93,7 @@ export async function generatePixelIds(gifData, state) {
 		console.log("Rendering last frame");
 	}
 	const skipped = currentFrameID - state.lastFrame - 1;
-	if (skipped > 0) {
+	if (skipped > 0 && state.lastFrame !== -1) {
 		console.log(`This means skipping ${skipped} frames.`);
 	}
 	state.lastFrame = currentFrameID;
