@@ -10,7 +10,7 @@ import {
 	saveState,
 	shutdownBrowserWithTimeout,
 } from "./src/subFns.js";
-import { timeoutRace } from "./src/lib.js";
+import { timeoutRace, wrapToReturnError } from "./src/lib.js";
 
 [
 	"SITE_URL",
@@ -43,7 +43,17 @@ if (state.errorCount > Number(process.env.MAX_ERRORS)) {
 
 let browser, page, pixels, paletteButtons, errorEventPromise;
 
+let panicking = false;
 process.once("uncaughtException", (err) => {
+	if (panicking) {
+		console.error(
+			`Another uncaught error occurred after the panic started:`
+		);
+		console.error(err);
+		return;
+	}
+	panicking = true;
+
 	panic(browser, state, err);
 });
 
@@ -70,18 +80,22 @@ while (true) {
 			await loadPage());
 
 		console.log("Rendering...");
-		const changedPixels = await Promise.race([
-			renderFrame(pixelIds, width, pixels, paletteButtons, page),
-			errorEventPromise,
+		const [changedPixels, error] = await Promise.race([
+			wrapToReturnError(
+				renderFrame(pixelIds, width, pixels, paletteButtons, page)
+			),
+			wrapToReturnError(errorEventPromise),
 		]);
+		if (error) throw error; // renderFrame often throws during the browser shutdown in the catch, this means those errors are ignored
+
 		console.log(`Changed ${changedPixels} pixels`);
 	} catch (error) {
+		console.log("An error occurred while loading and rendering the page:");
+		console.error(error);
 		try {
 			await shutdownBrowserWithTimeout(browser);
 		} catch {}
 
-		console.log("An error occurred while loading and rendering the page:");
-		console.error(error);
 		failed = true;
 	}
 

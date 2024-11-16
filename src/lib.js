@@ -127,6 +127,13 @@ export async function timeoutRace(promise, maxTime) {
 	clearTimeout(timeoutTask);
 	return output;
 }
+export async function wrapToReturnError(promise) {
+	try {
+		return [await promise, null];
+	} catch (error) {
+		return [null, error];
+	}
+}
 
 export function randomString(
 	len,
