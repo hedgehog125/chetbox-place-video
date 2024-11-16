@@ -1,0 +1,1 @@
+ffmpeg -i input.mp4 -i palette.png -filter_complex "[0:v] fps=14.985,scale=30:22:flags=neighbor [scaled]; [scaled] pad=width=32:height=24:x=(ow-iw)/2:y=(oh-ih)/2:color=0xe50000 [padded];[padded][1:v] paletteuse=dither=sierra2_4a" -gifflags -offsetting output.gif
