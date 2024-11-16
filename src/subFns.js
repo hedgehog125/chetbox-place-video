@@ -22,7 +22,7 @@ export async function loadState() {
 					errorCount: 0,
 					completed: false,
 					startTime: Date.now(),
-					lastFrame: -1,
+					nextFrame: 0,
 					tag: randomString(10),
 			  };
 		console.log(`Created new state: ${JSON.stringify(newState)}`);

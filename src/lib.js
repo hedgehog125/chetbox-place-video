@@ -54,7 +54,7 @@ export async function generatePixelIds(gifData, state) {
 			(Date.now() - state.startTime) * Number(process.env.PLAYBACK_SPEED);
 		const frame = gifData.frames[currentFrameID];
 		if (frame.timeCode > scaledElapsed) {
-			if (currentFrameID === state.lastFrame) {
+			if (currentFrameID === state.nextFrame) {
 				const timeToWait =
 					(frame.timeCode - scaledElapsed) /
 					Number(process.env.PLAYBACK_SPEED);
@@ -92,11 +92,11 @@ export async function generatePixelIds(gifData, state) {
 		state.completed = true;
 		console.log("Rendering last frame");
 	}
-	const skipped = currentFrameID - state.lastFrame - 1;
-	if (skipped > 0 && state.lastFrame !== -1) {
+	const skipped = currentFrameID - state.nextFrame - 1;
+	if (skipped > 0) {
 		console.log(`This means skipping ${skipped} frames.`);
 	}
-	state.lastFrame = currentFrameID;
+	state.nextFrame = currentFrameID;
 	return pixelIds;
 }
 
