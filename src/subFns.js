@@ -109,9 +109,12 @@ export async function loadPage() {
 	}
 }
 export async function prepareGif(state) {
-	await downloadGif();
+	await timeoutRace(downloadGif(), 30 * 1000);
 	const gifData = decodeGif(
-		await readFile(path.join(process.env.MOUNT_PATH, GIF_FILENAME))
+		await timeoutRace(
+			readFile(path.join(process.env.MOUNT_PATH, GIF_FILENAME)),
+			10 * 1000
+		)
 	);
 	const pixelIds = await generatePixelIds(gifData, state);
 	if (pixelIds == null) return null;

@@ -48,7 +48,7 @@ process.once("uncaughtException", (err) => {
 });
 
 console.log("Preparing GIF...");
-const preparedGif = await timeoutRace(prepareGif(state), 30 * 1000);
+const preparedGif = await prepareGif(state);
 if (preparedGif == null) {
 	await saveState(state);
 	console.log("Done");
