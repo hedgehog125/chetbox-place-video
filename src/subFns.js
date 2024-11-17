@@ -156,7 +156,7 @@ export async function renderFrame(
 		colorIdToDraw++
 	) {
 		await paletteButtons[colorIdToDraw].click();
-		await wait(30);
+		await wait(20);
 
 		for (let i = 0; i < pixelIds.length; i++) {
 			if (pixelIds[i] === colorIdToDraw) {
@@ -192,9 +192,9 @@ export async function renderFrame(
 				}
 
 				if (currentPixelColorId !== pixelIds[i]) {
-					outputPixels[drawPosIndex].click();
+					await outputPixels[drawPosIndex].click();
 					totalUpdated++;
-					await wait(30);
+					await wait(20);
 				}
 			}
 		}
@@ -224,7 +224,9 @@ export async function panic(browser, state, err) {
 		);
 	}
 	if (err) {
-		console.error(`Error causing panic:`, err);
+		console.error(`Error causing panic:`);
+		console.error(err);
+		console.log("Throwing it as an error...");
 		throw err;
 	}
 	process.abort();
