@@ -118,17 +118,34 @@ export async function logWhenResolved(promise, message) {
 export function wait(delay) {
 	return new Promise((resolve) => setTimeout(() => resolve(), delay));
 }
-export async function timeoutRace(promise, maxTime) {
+export async function timeoutRace(
+	promise,
+	maxTime,
+	ignoreSubsequentErrors = false
+) {
 	let timeoutTask;
-	const output = await Promise.race([
-		promise,
-		new Promise((_, reject) => {
-			timeoutTask = setTimeout(() => {
-				reject("Timeout exceeded");
-			}, maxTime);
-		}),
+	const timeoutPromise = new Promise((_, reject) => {
+		timeoutTask = setTimeout(() => {
+			reject("Timeout exceeded");
+		}, maxTime);
+	});
+
+	const allOutputs = await Promise.race([
+		ignoreSubsequentErrors ? wrapToReturnError(promise) : promise,
+		ignoreSubsequentErrors
+			? wrapToReturnError(timeoutPromise)
+			: timeoutPromise,
 	]);
 	clearTimeout(timeoutTask);
+
+	let output, error;
+	if (ignoreSubsequentErrors) {
+		[output, error] = allOutputs;
+	} else {
+		output = allOutputs;
+	}
+
+	if (error) throw error;
 	return output;
 }
 export async function wrapToReturnError(promise) {

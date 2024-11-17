@@ -77,9 +77,14 @@ export async function loadPage() {
 			throw new Error(`Page status was ${resp.status()}`);
 		}
 		const errorEventPromise = new Promise((_, reject) => {
-			browser.on("error", reject);
-			browser.on("disconnect", reject);
-			page.once("error", reject);
+			const handle = (error) => reject(error);
+
+			browser.on("error", handle);
+			browser.on("disconnect", handle);
+			page.on("error", handle);
+			page.on("close", () => {
+				console.log("Page closed");
+			});
 		});
 
 		await page.waitForSelector("td");
@@ -228,7 +233,7 @@ export async function shutdownBrowserWithTimeout(browser) {
 	console.log("Closing browser...");
 	if (!browser) return;
 
-	await timeoutRace(browser.close(), 30 * 1000);
+	await timeoutRace(browser.close(), 30 * 1000, true);
 }
 
 export async function saveState(state) {
